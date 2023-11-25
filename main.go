@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"stupidauth/handlers"
 	"stupidauth/routing"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,6 +15,6 @@ func main() {
 	if err := routing.Setup(app); err != nil {
 		log.Fatalln(err)
 	}
-	defer routing.BADGER.Close()
+	defer handlers.BADGER.Close()
 	app.Listen("127.0.0.1:9090")
 }
