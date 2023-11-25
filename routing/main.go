@@ -3,15 +3,18 @@ package routing
 import (
 	"bytes"
 	"encoding/gob"
-
 	"stupidauth/handlers"
+
+	jwtware "github.com/gofiber/contrib/jwt"
+	"github.com/gofiber/fiber/v2"
+
 	. "stupidauth/handlers"
+
 	. "stupidauth/models"
+	"stupidauth/repos"
 
 	"github.com/dgraph-io/badger/v4"
-	"github.com/gofiber/fiber/v2"
 )
-
 
 func Setup(app *fiber.App) (err error) {
 	err = handlers.Init()
@@ -20,17 +23,23 @@ func Setup(app *fiber.App) (err error) {
 	}
 	app.Post("/login", Login)
 	app.Post("/reg", Register)
-	app.Post("/adminize/:user", adminize)
+	app.Use(Protected(handlers.JWT_SECRET))
+	app.Post("/list_vms", VmList)
 	return
 }
 
-func adminize(ctx *fiber.Ctx) error {
+func Protected(JWT_SECRET []byte) func(*fiber.Ctx) error {
+	return jwtware.New(jwtware.Config{
+		SigningKey: jwtware.SigningKey{Key: JWT_SECRET},
+	})
+}
+func adminize(ctx *fiber.Ctx) error { // {{{
 	var net bytes.Buffer
 	login := ctx.Params("user")
 	if login == "" {
 		return fiber.ErrBadRequest
 	}
-	return BADGER.Update(func(txn *badger.Txn) error {
+	return repos.Users.Update(func(txn *badger.Txn) error {
 
 		item, err := txn.Get([]byte(login))
 		if err != nil {
@@ -49,4 +58,4 @@ func adminize(ctx *fiber.Ctx) error {
 		}
 		return txn.Set([]byte(login), net.Bytes())
 	})
-}
+} // }}}

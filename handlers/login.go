@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 
 	. "stupidauth/models"
+	"stupidauth/repos"
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +19,7 @@ func Login(ctx *fiber.Ctx) error {
 		return err
 	}
 	var user User
-	err := BADGER.View(func(txn *badger.Txn) error {
+	err := repos.Users.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(input.Login))
 		if err != nil {
 			return fiber.ErrNotFound
