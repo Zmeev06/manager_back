@@ -28,6 +28,10 @@ func Setup(app *fiber.App) (err error) {
 	app.Post("/start", handlers.Start)
 	app.Post("/stop", handlers.Stop)
 	app.Post("/add_server", handlers.AddServer)
+	app.Post("/rm_server", handlers.RmServer)
+	app.Post("/images", handlers.Images)
+	app.Post("/create", handlers.Create)
+	app.Post("/delete", handlers.Delete)
 	return
 }
 

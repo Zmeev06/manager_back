@@ -53,3 +53,25 @@ func Stop(ctx *fiber.Ctx) error {
 	}
 	return conn.DomainShutdown(dm)
 }
+func Delete(ctx *fiber.Ctx) error{
+	var in models.VmControlByUUIDInput
+	if err := ctx.BodyParser(&in); err != nil {
+		return err
+	}
+	var conn *libvirt.Libvirt
+	var (
+		err error
+		tun *sshtunnel.SSHTunnel
+	)
+	conn, err, tun = getRemoteLibvirt(ctx, in.Host)
+	if err != nil {
+		return err
+	}
+	defer tun.Close()
+	defer conn.ConnectClose()
+	dom, err := conn.DomainLookupByUUID(libvirt.UUID(in.UUID))
+	if err != nil {
+		return err
+	}
+	return conn.DomainUndefine(dom)
+}

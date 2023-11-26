@@ -4,6 +4,7 @@ import (
 	"stupidauth/repos"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/ssh"
 )
 
 func UserInfo(ctx *fiber.Ctx) error {
@@ -12,7 +13,16 @@ func UserInfo(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	key, err := repos.GetKey(username)
+	if err != nil {
+		return err
+	}
+	sshkey, err := ssh.NewPublicKey(&key.PublicKey)
+	if err != nil {
+		return err
+	}
 	return ctx.JSON(fiber.Map{
 		"login":   user.Login,
-		"servers": user.Servers})
+		"servers": user.Servers,
+		"pub_key": string(ssh.MarshalAuthorizedKey(sshkey))})
 }

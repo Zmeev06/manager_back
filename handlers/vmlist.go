@@ -1,9 +1,6 @@
 package handlers
 
 import (
-	"bytes"
-	"crypto/rsa"
-	"encoding/gob"
 	"fmt"
 	"math"
 	"net"
@@ -11,7 +8,6 @@ import (
 	"stupidauth/repos"
 	"time"
 
-	"github.com/dgraph-io/badger/v4"
 	"github.com/digitalocean/go-libvirt"
 	"github.com/elliotchance/sshtunnel"
 	"github.com/gofiber/fiber/v2"
@@ -36,11 +32,7 @@ func VmList(ctx *fiber.Ctx) error {
 		return err
 	}
 	var conn *libvirt.Libvirt
-	var (
-		err error
-		tun *sshtunnel.SSHTunnel
-	)
-	conn, err, tun = getRemoteLibvirt(ctx, in.Host)
+	conn, err, tun := getRemoteLibvirt(ctx, in.Host)
 	if err != nil {
 		return err
 	}
@@ -72,27 +64,17 @@ func getUserFromJwt(ctx *fiber.Ctx) string {
 	return token.Claims.(jwt.MapClaims)["user"].(string)
 }
 func getRemoteLibvirt(ctx *fiber.Ctx, host string) (conn *libvirt.Libvirt, err error, tun *sshtunnel.SSHTunnel) {
-	var buf bytes.Buffer
 	username := getUserFromJwt(ctx)
-	var key rsa.PrivateKey
-	err = repos.Keys.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte(username))
-		if err != nil {
-			return err
-		}
-		return item.Value(func(val []byte) error {
-			return gob.NewDecoder(&buf).Decode(&key)
-		})
-	})
+	key, err := repos.GetKey(username)
 	if err != nil {
 		return
 	}
-	sshsigner, err := ssh.NewSignerFromKey(key)
+	sshsigner, err := ssh.NewSignerFromKey(&key)
 	if err != nil {
 		return
 	}
 	tun, err = sshtunnel.NewSSHTunnel(
-		fmt.Sprintf("root@%s", host),
+		fmt.Sprintf("%s", host),
 		ssh.PublicKeys(sshsigner),
 		"127.0.0.1:16509",
 		"0")
