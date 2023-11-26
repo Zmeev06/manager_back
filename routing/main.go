@@ -25,6 +25,8 @@ func Setup(app *fiber.App) (err error) {
 	app.Use(Protected(handlers.JWT_SECRET))
 	app.Get("/user_info", handlers.UserInfo)
 	app.Post("/list_vms", handlers.VmList)
+	app.Post("/start", handlers.Start)
+	app.Post("/stop", handlers.Stop)
 	app.Post("/add_server", handlers.AddServer)
 	return
 }

@@ -12,11 +12,6 @@ import (
 
 var JWT_SECRET []byte
 
-type Input struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
-}
-
 func Init() (err error) {
 	if err := repos.Init(); err != nil {
 		return err

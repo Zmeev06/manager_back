@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/gob"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"math"
 	"net"
+	"stupidauth/models"
 	"stupidauth/repos"
 	"time"
 
@@ -20,38 +19,19 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type UUID [16]byte // {{{
-
-func (this UUID) MarshalJSON() ([]byte, error) {
-	v := hex.EncodeToString(this[:])
-	return json.Marshal(v)
-}
-func (this *UUID) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	bytes, err := hex.DecodeString(v)
-	copy(this[:], bytes)
-	return err
-} // }}}
-
 type DomainInfo struct {
-	Name   string `json:"name"`
-	ID     int32  `json:"id"`
-	UUID   UUID   `json:"uuid"`
-	State  uint8  `json:"state"`
-	MaxMem uint64 `json:"mem_max"`
-	Mem    uint64 `json:"mem_used"`
-	Cpus   uint16 `json:"cpus"`
+	Name   string      `json:"name"`
+	ID     int32       `json:"id"`
+	UUID   models.UUID `json:"uuid"`
+	State  uint8       `json:"state"`
+	MaxMem uint64      `json:"mem_max"`
+	Mem    uint64      `json:"mem_used"`
+	Cpus   uint16      `json:"cpus"`
 	// CpuTime   uint64 `json:"cpu_teim"`
 }
 
 func VmList(ctx *fiber.Ctx) error {
-	type Input struct {
-		Host string `json:"host"`
-	}
-	var in Input
+	var in models.VmControlInput
 	if err := ctx.BodyParser(&in); err != nil {
 		return err
 	}
@@ -86,7 +66,7 @@ func VmList(ctx *fiber.Ctx) error {
 		dminfos[k] = DomainInfo{
 			v.Name,
 			v.ID,
-			UUID(v.UUID),
+			models.UUID(v.UUID),
 			state,
 			mmem,
 			mem,

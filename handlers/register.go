@@ -18,7 +18,7 @@ import (
 func Register(ctx *fiber.Ctx) error {
 	// ssh.NewSignerFromKey()
 	var net bytes.Buffer
-	var input Input
+	var input AuthInput
 	if err := ctx.BodyParser(&input); err != nil {
 		return err
 	}
@@ -27,7 +27,6 @@ func Register(ctx *fiber.Ctx) error {
 		return err
 	}
 	user := User{
-		Admin:    false,
 		Password: hash,
 		Login:    input.Login,
 	}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"stupidauth/models"
 	"stupidauth/repos"
 
 	"github.com/gofiber/fiber/v2"
@@ -8,7 +9,7 @@ import (
 )
 
 func Login(ctx *fiber.Ctx) error {
-	var input Input
+	var input models.AuthInput
 	if err := ctx.BodyParser(&input); err != nil {
 		return err
 	}
