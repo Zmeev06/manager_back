@@ -22,6 +22,9 @@ func Images(ctx *fiber.Ctx) error {
 		return err
 	}
 	sess, err := sshSess(in.Host, &key)
+	if err != nil {
+		return err
+	}
 	out, err := sess.Output("ls /root/downloads")
 	if err != nil {
 		return err

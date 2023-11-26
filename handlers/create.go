@@ -30,7 +30,7 @@ func Create(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	in.Memory = 1024 * 1024
+	in.Memory = 1024 * 512
 	in.UUID = uuid.New().String()
 	defer tun.Close()
 	key, err := repos.GetKey(getUserFromJwt(ctx))
