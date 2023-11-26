@@ -14,23 +14,15 @@ func Start(ctx *fiber.Ctx) error {
 		return err
 	}
 	var conn *libvirt.Libvirt
-	if in.Host == "" {
-		var err error
-		conn, err = getLocalLibvirt()
-		if err != nil {
-			return err
-		}
-	} else {
-		var (
-			err error
-			tun *sshtunnel.SSHTunnel
-		)
-		conn, err, tun = getRemoteLibvirt(ctx, in.Host)
-		if err != nil {
-			return err
-		}
-		defer tun.Close()
+	var (
+		err error
+		tun *sshtunnel.SSHTunnel
+	)
+	conn, err, tun = getRemoteLibvirt(ctx, in.Host)
+	if err != nil {
+		return err
 	}
+	defer tun.Close()
 	defer conn.ConnectClose()
 	dm, err := conn.DomainLookupByUUID(libvirt.UUID(in.UUID))
 	if err != nil {
@@ -45,23 +37,15 @@ func Stop(ctx *fiber.Ctx) error {
 		return err
 	}
 	var conn *libvirt.Libvirt
-	if in.Host == "" {
-		var err error
-		conn, err = getLocalLibvirt()
-		if err != nil {
-			return err
-		}
-	} else {
-		var (
-			err error
-			tun *sshtunnel.SSHTunnel
-		)
-		conn, err, tun = getRemoteLibvirt(ctx, in.Host)
-		if err != nil {
-			return err
-		}
-		defer tun.Close()
+	var (
+		err error
+		tun *sshtunnel.SSHTunnel
+	)
+	conn, err, tun = getRemoteLibvirt(ctx, in.Host)
+	if err != nil {
+		return err
 	}
+	defer tun.Close()
 	defer conn.ConnectClose()
 	dm, err := conn.DomainLookupByUUID(libvirt.UUID(in.UUID))
 	if err != nil {

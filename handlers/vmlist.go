@@ -36,23 +36,15 @@ func VmList(ctx *fiber.Ctx) error {
 		return err
 	}
 	var conn *libvirt.Libvirt
-	if in.Host == "" {
-		var err error
-		conn, err = getLocalLibvirt()
-		if err != nil {
-			return err
-		}
-	} else {
-		var (
-			err error
-			tun *sshtunnel.SSHTunnel
-		)
-		conn, err, tun = getRemoteLibvirt(ctx, in.Host)
-		if err != nil {
-			return err
-		}
-		defer tun.Close()
+	var (
+		err error
+		tun *sshtunnel.SSHTunnel
+	)
+	conn, err, tun = getRemoteLibvirt(ctx, in.Host)
+	if err != nil {
+		return err
 	}
+	defer tun.Close()
 	dms, n, err := conn.ConnectListAllDomains(math.MaxInt32, 0)
 	if err != nil {
 		return err
@@ -78,17 +70,6 @@ func VmList(ctx *fiber.Ctx) error {
 func getUserFromJwt(ctx *fiber.Ctx) string {
 	token := ctx.Locals("user").(*jwt.Token)
 	return token.Claims.(jwt.MapClaims)["user"].(string)
-}
-func getLocalLibvirt() (*libvirt.Libvirt, error) {
-	c, err := net.DialTimeout("unix", "/var/run/libvirt/libvirt-sock", time.Second*2)
-	if err != nil {
-		return nil, err
-	}
-	conn := libvirt.New(c)
-	if err := conn.Connect(); err != nil {
-		return nil, err
-	}
-	return conn, nil
 }
 func getRemoteLibvirt(ctx *fiber.Ctx, host string) (conn *libvirt.Libvirt, err error, tun *sshtunnel.SSHTunnel) {
 	var buf bytes.Buffer
