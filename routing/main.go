@@ -3,12 +3,11 @@ package routing
 import (
 	"bytes"
 	"encoding/gob"
-	"stupidauth/handlers"
 
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
 
-	. "stupidauth/handlers"
+	"stupidauth/handlers"
 
 	. "stupidauth/models"
 	"stupidauth/repos"
@@ -21,10 +20,12 @@ func Setup(app *fiber.App) (err error) {
 	if err != nil {
 		return err
 	}
-	app.Post("/login", Login)
-	app.Post("/reg", Register)
+	app.Post("/login", handlers.Login)
+	app.Post("/reg", handlers.Register)
 	app.Use(Protected(handlers.JWT_SECRET))
-	app.Post("/list_vms", VmList)
+	app.Get("/user_info", handlers.UserInfo)
+	app.Post("/list_vms", handlers.VmList)
+	app.Post("/add_server", handlers.AddServer)
 	return
 }
 
