@@ -7,6 +7,7 @@ import (
 	. "stupidauth/models"
 	"stupidauth/repos"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -30,4 +31,8 @@ func makeToken(user User) (str string, err error) {
 		return
 	}
 	return
+}
+func getUserFromJwt(ctx *fiber.Ctx) string {
+	token := ctx.Locals("user").(*jwt.Token)
+	return token.Claims.(jwt.MapClaims)["user"].(string)
 }
