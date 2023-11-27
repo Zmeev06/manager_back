@@ -3,8 +3,8 @@ module stupidauth
 go 1.20
 
 require (
+	codeberg.org/shinyzero0/sshtunnel v0.0.0-20231127174907-31e3d60e51d4
 	github.com/digitalocean/go-libvirt v0.0.0-20221205150000-2939327a8519
-	github.com/elliotchance/sshtunnel v1.6.1
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	golang.org/x/crypto v0.15.0
@@ -31,7 +31,7 @@ require (
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/dgraph-io/badger/v4 v4.2.0
 	github.com/gofiber/contrib/jwt v1.0.7
-	github.com/google/uuid v1.4.0 // indirect
+	github.com/google/uuid v1.4.0
 	github.com/klauspost/compress v1.17.3 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

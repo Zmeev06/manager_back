@@ -4,7 +4,7 @@ import (
 	"stupidauth/models"
 
 	"github.com/digitalocean/go-libvirt"
-	"github.com/elliotchance/sshtunnel"
+	"codeberg.org/shinyzero0/sshtunnel"
 	"github.com/gofiber/fiber/v2"
 )
 

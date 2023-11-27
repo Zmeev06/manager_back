@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
-	"github.com/elliotchance/sshtunnel"
+	"codeberg.org/shinyzero0/sshtunnel"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/ssh"
