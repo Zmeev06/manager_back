@@ -37,7 +37,7 @@ func Create(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	sess, err := sshSess(in.Host, &key)
+	sess, err := sshSess(in.Host, key)
 	if err != nil {
 		return err
 	}

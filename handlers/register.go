@@ -9,7 +9,6 @@ import (
 	. "stupidauth/models"
 	"stupidauth/repos"
 
-	"github.com/dgraph-io/badger/v4"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 	// "golang.org/x/crypto/ssh"
@@ -36,12 +35,7 @@ func Register(ctx *fiber.Ctx) error {
 	if err := gob.NewEncoder(&net).Encode(&user); err != nil {
 		return err
 	}
-	if err := repos.Users.Update(func(txn *badger.Txn) error {
-		if _, err := txn.Get([]byte(input.Login)); err == nil {
-			return fiber.ErrConflict
-		}
-		return txn.Set([]byte(input.Login), net.Bytes())
-	}); err != nil {
+	if err := repos.AddUser(user.Login, user); err != nil {
 		return err
 	}
 	key, err := rsa.GenerateKey(rand.Reader, 4096)

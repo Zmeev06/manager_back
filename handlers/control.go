@@ -58,7 +58,7 @@ func Stop(ctx *fiber.Ctx) error {
 	}
 	return conn.DomainShutdown(dm)
 }
-func Delete(ctx *fiber.Ctx) error{
+func Delete(ctx *fiber.Ctx) error {
 	var in models.VmControlByUUIDInput
 	if err := ctx.BodyParser(&in); err != nil {
 		return err
@@ -86,23 +86,38 @@ func getRemoteLibvirt(ctx *fiber.Ctx, host string) (conn *libvirt.Libvirt, err e
 	if err != nil {
 		return
 	}
+	h, p, err := net.SplitHostPort(host)
+	if err.Error() != "missing port in address" {
+		return
+	} else {
+		p = "22"
+	}
+	newhost := fmt.Sprintf("%s:%s", h, p)
 	sshsigner, err := ssh.NewSignerFromKey(&key)
 	if err != nil {
 		return
 	}
 	tun, err = sshtunnel.NewSSHTunnel(
-		fmt.Sprintf("%s", host),
+		fmt.Sprintf("%s:22", host),
 		ssh.PublicKeys(sshsigner),
-		"127.0.0.1:16509",
+		"/var/run/libvirt/libvirt-sock",
 		"0")
 	if err != nil {
 		return
 	}
+	tun.Log = sshtunnel.Logger{
+		LogFunc: func(f string, items ...interface{}) {
+			fmt.Printf(f, items)
+			fmt.Println()
+		},
+	}
+	// tun.Local.Proto = "tcp"
+	tun.Remote.Proto = "unix"
 	go tun.Start()
 	time.Sleep(1 * time.Second)
 	c, err := net.DialTimeout(
 		"tcp",
-		fmt.Sprintf("localhost:%d", tun.Local.Port),
+		fmt.Sprintf("localhost:%d", tun.LocalAddr.(*net.TCPAddr).Port),
 		time.Second*5)
 	if err != nil {
 		return

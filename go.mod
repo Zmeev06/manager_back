@@ -3,11 +3,11 @@ module stupidauth
 go 1.20
 
 require (
-	codeberg.org/shinyzero0/sshtunnel v0.0.0-20231127174907-31e3d60e51d4
+	codeberg.org/shinyzero0/sshtunnel v0.0.0-20231127192139-80d1e37895ad
 	github.com/digitalocean/go-libvirt v0.0.0-20221205150000-2939327a8519
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/golang-jwt/jwt/v5 v5.1.0
-	golang.org/x/crypto v0.15.0
+	golang.org/x/crypto v0.16.0
 )
 
 require (
@@ -40,5 +40,5 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 )
