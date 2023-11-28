@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"path"
 	"stupidauth/models"
@@ -11,6 +12,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
+
+//go:embed templates
+var createTmpl embed.FS
 
 func Create(ctx *fiber.Ctx) error {
 	type Input struct {
@@ -48,40 +52,12 @@ func Create(ctx *fiber.Ctx) error {
 		return err
 	}
 	in.Drive = imagepath
-	tmpl, err := template.New("domain").Parse(
-		`<domain type='qemu'>
-  <name>{{.Name}}</name>
-  <uuid>{{.UUID}}</uuid>
-  <memory>{{.Memory}}</memory>
-  <vcpu>{{.Cpus}}</vcpu>
-  <os>
-    <type arch='x86_64' machine='pc'>hvm</type>
-    <boot dev='cdrom'/>
-  </os>
-  <devices>
-    <emulator>/usr/bin/qemu-system-x86_64</emulator>
-    <disk type='file' device='cdrom'>
-      <source file='/root/downloads/{{.Image}}'/>
-      <target dev='hdc'/>
-      <readonly/>
-    </disk>
-    <disk type='file' device='disk'>
-      <source file='{{.Drive}}'/>
-      <target dev='hda'/>
-    </disk>
-    <interface type='network'>
-      <source network='default'/>
-    </interface>
-    <graphics type='vnc' port='-1'>
-		<listen type='address' address='0.0.0.0'/>
-	</graphics>
-  </devices>
-</domain>`)
+	tmpl, err := template.ParseFS(createTmpl)
 	if err != nil {
 		return err
 	}
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, &in); err != nil {
+	if err := tmpl.ExecuteTemplate(&buf, "create", &in); err != nil {
 		return err
 	}
 	_, err = conn.DomainDefineXML(buf.String())
