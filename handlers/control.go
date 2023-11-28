@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net"
+	"strings"
 	"stupidauth/models"
 	"stupidauth/repos"
 	"time"
@@ -13,6 +15,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/ssh"
 )
+
+var ErrSshParseNoUser = errors.New("Missing user in host string")
 
 func Start(ctx *fiber.Ctx) error {
 	var in models.VmControlByUUIDInput
@@ -81,25 +85,40 @@ func Delete(ctx *fiber.Ctx) error {
 	}
 	return conn.DomainUndefine(dom)
 }
+func parseSSHAddr(addr string) (user string, host string, port string, err error) {
+
+	userhost := strings.Split(addr, "@")
+	host, port, err = net.SplitHostPort(userhost[1])
+	if len(userhost) != 2 {
+		err = ErrSshParseNoUser
+		return
+	}
+	if strings.Contains(err.Error(), "missing port in address") {
+		port = "22"
+	} else {
+		return
+	}
+	return
+}
+
 func getRemoteLibvirt(ctx *fiber.Ctx, host string) (conn *libvirt.Libvirt, err error, tun *sshtunnel.SSHTunnel) {
 	username := getUserFromJwt(ctx)
 	key, err := repos.GetKey(username)
 	if err != nil {
 		return
 	}
-	h, p, err := net.SplitHostPort(host)
-	if err.Error() != "missing port in address" {
+	u, h, p, err := parseSSHAddr(host)
+	if err != nil {
 		return
-	} else {
-		p = "22"
 	}
-	newhost := fmt.Sprintf("%s:%s", h, p)
+	newhost := fmt.Sprintf("%s@%s:%s", u, h, p)
+	fmt.Println(newhost)
 	sshsigner, err := ssh.NewSignerFromKey(&key)
 	if err != nil {
 		return
 	}
 	tun, err = sshtunnel.NewSSHTunnel(
-		fmt.Sprintf("%s:22", host),
+		newhost,
 		ssh.PublicKeys(sshsigner),
 		"/var/run/libvirt/libvirt-sock",
 		"0")

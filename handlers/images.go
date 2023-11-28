@@ -40,18 +40,22 @@ func Images(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(lines)
 }
-func sshSess(host string, key *rsa.PrivateKey) (sess *ssh.Session, err error) {
+func sshSess(addr string, key *rsa.PrivateKey) (sess *ssh.Session, err error) {
 	sshsigner, err := ssh.NewSignerFromKey(key)
 	if err != nil {
 		return
 	}
+	user, host, port, err := parseSSHAddr(addr)
+	if err != nil {
+		return
+	}
 	config := ssh.ClientConfig{
-		User:            "root",
+		User:            user,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeys(sshsigner)},
 	}
-	cli, err := ssh.Dial("tcp", host+":22", &config)
+	cli, err := ssh.Dial("tcp", host+port, &config)
 	if err != nil {
 		return
 	}
