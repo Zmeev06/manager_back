@@ -23,15 +23,16 @@ func Setup(app *fiber.App) (err error) {
 	app.Post("/login", handlers.Login)
 	app.Post("/reg", handlers.Register)
 	app.Use(Protected(handlers.JWT_SECRET))
-	app.Get("/user_info", handlers.UserInfo)
 	app.Post("/list_vms", handlers.VmList)
-	app.Post("/start", handlers.Start)
-	app.Post("/stop", handlers.Stop)
-	app.Post("/add_server", handlers.AddServer)
-	app.Post("/rm_server", handlers.RmServer)
 	app.Post("/images", handlers.Images)
-	app.Post("/create", handlers.Create)
-	app.Post("/delete", handlers.Delete)
+	app.Get("/user/info", handlers.UserInfo)
+	app.Post("/user/key_regen", handlers.RegenKeyHand)
+	app.Post("/servers/add", handlers.AddServer)
+	app.Post("/servers/rm", handlers.RmServer)
+	app.Post("/vm/start", handlers.Start)
+	app.Post("/vm/stop", handlers.Stop)
+	app.Post("/vm/add", handlers.Create)
+	app.Post("/vm/rm", handlers.Delete)
 	return
 }
 
