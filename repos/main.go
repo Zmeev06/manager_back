@@ -81,11 +81,30 @@ func MakeGetFunc[T any](db *badger.DB) func(string) (T, error) {
 		})
 	}
 }
-func MakeAddFunc[T any](db *badger.DB) func(string, T) error {
+func MakeSetFunc[T any](db *badger.DB) func(string, T) error {
 	return func(key string, item T) error {
 		var net bytes.Buffer
 		return db.Update(func(txn *badger.Txn) error {
 
+			if err := gob.NewEncoder(&net).Encode(&item); err != nil {
+				return err
+			}
+			return txn.Set([]byte(key), net.Bytes())
+		})
+	}
+}
+func MakeAddFunc[T any](db *badger.DB) func(string, T) error {
+	return func(key string, item T) error {
+		var net bytes.Buffer
+		return db.Update(func(txn *badger.Txn) error {
+			_, err := txn.Get([]byte(key))
+			if err != nil {
+				if err != badger.ErrKeyNotFound {
+					return err
+				}
+			} else {
+				return fiber.ErrConflict
+			}
 			if err := gob.NewEncoder(&net).Encode(&item); err != nil {
 				return err
 			}

@@ -6,12 +6,10 @@ import (
 	"stupidauth/repos"
 )
 
-func RegenKey(username string) error {
+func SetKey(username string) error {
 	k, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return err
 	}
-	return repos.UpdateKey(username, func(pk **rsa.PrivateKey) {
-		*pk = k
-	})
+	return repos.SetKey(username, k)
 }
