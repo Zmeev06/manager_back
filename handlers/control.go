@@ -9,6 +9,7 @@ import (
 
 	"codeberg.org/shinyzero0/sshtunnel"
 	"github.com/digitalocean/go-libvirt"
+	"github.com/digitalocean/go-libvirt/socket/dialers"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/ssh"
 )
@@ -122,7 +123,7 @@ func getRemoteLibvirt(ctx *fiber.Ctx, host string) (conn *libvirt.Libvirt, err e
 	if err != nil {
 		return
 	}
-	conn = libvirt.New(c)
+	conn = libvirt.NewWithDialer(dialers.NewAlreadyConnected(c))
 	if err = conn.Connect(); err != nil {
 		return
 	}
